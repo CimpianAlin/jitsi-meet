@@ -2035,10 +2035,10 @@ export default {
         const videoMediaDevices
             = mediaDeviceHelper.getCurrentMediaDevices().videoinput;
         const hasPermissions
-            = videoMediaDevices !== undefined
+            = videoMediaDevices
                 && videoMediaDevices.filter(d => d.label !== '').length > 0;
         const videoDeviceCount
-            = videoMediaDevices !== undefined ? videoMediaDevices.length : 0;
+            = videoMediaDevices ? videoMediaDevices.length : 0;
         // The video functionality is considered available if there are any
         // video devices detected and we have permissions to access them,
         // or if there is local video stream already active which could be
