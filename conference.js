@@ -1141,41 +1141,40 @@ export default {
     _turnScreenSharingOff(didHaveVideo, wasVideoMuted) {
         this._untoggleScreenSharing = null;
         this.videoSwitchInProgress = true;
-        return new Promise((resolve, reject) => {
-            APP.remoteControl.receiver.stop();
-            if (didHaveVideo) {
-                createLocalTracks({ devices: ['video'] })
-                    .then(([stream]) => this.useVideoStream(stream))
-                    .then(() => {
-                        JitsiMeetJS.analytics.sendEvent(
-                            'conference.sharingDesktop.stop');
-                        logger.log('switched back to local video');
-                        if (!localVideo && wasVideoMuted) {
-                            reject('No local video to be muted!');
-                        } else if (wasVideoMuted && localVideo) {
-                            localVideo.mute().then(resolve, reject);
-                        } else {
-                            resolve();
-                        }
-                    })
-                    .catch((err) => {
-                        // NOTE this call is asynchronous, but not part of
-                        // the Promise chain ??? (I preserved the old code here)
-                        this.useVideoStream(null);
-                        logger.error(
-                            'failed to switch back to local video', err);
-                        reject(err);
+        APP.remoteControl.receiver.stop();
+        let promise = null;
+
+        if (didHaveVideo) {
+            promise = createLocalTracks({ devices: ['video'] })
+                .then(([stream]) => this.useVideoStream(stream))
+                .then(() => {
+                    JitsiMeetJS.analytics.sendEvent(
+                        'conference.sharingDesktop.stop');
+                    logger.log('switched back to local video');
+                    if (!localVideo && wasVideoMuted) {
+                        return Promise.reject('No local video to be muted!');
+                    } else if (wasVideoMuted && localVideo) {
+                        return localVideo.mute();
+                    }
+                })
+                .catch(error => {
+                    logger.error('failed to switch back to local video', error);
+                    return this.useVideoStream(null).then(() => {
+                        // Still fail with the original err
+                        return Promise.reject(error);
                     });
-            } else {
-                this.useVideoStream(null).then(resolve, reject);
-            }
-        })
-        .then(() => {
-            this.videoSwitchInProgress = false;
-        }, (error) => {
-            this.videoSwitchInProgress = false;
-            throw error;
-        });
+                });
+        } else {
+            promise = this.useVideoStream(null);
+        }
+        return promise.then(
+            () => {
+                this.videoSwitchInProgress = false;
+            },
+            error => {
+                this.videoSwitchInProgress = false;
+                throw error;
+            });
     },
 
     /**
