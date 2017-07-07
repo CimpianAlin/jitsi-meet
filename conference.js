@@ -618,7 +618,6 @@ export default {
                     // Instead of disabling the button we want to show button
                     // muted, so that the user can have the opportunity to add
                     // the video later on, even if joined without it.
-                    // APP.UI.setCameraButtonEnabled(false);
                     this.videoMuted = true;
                     APP.UI.setVideoMuted(this.getMyUserId(), this.videoMuted);
                 }
