@@ -14,7 +14,7 @@ import {
 
 import {
     setToolbarButton
-} from './actions.native.js';
+} from './actions';
 
 /**
  * Adjusts the state of toolbar's camera button.
