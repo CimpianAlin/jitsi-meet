@@ -1118,7 +1118,7 @@ export default {
      * any video, before switching to screen sharing ? was it muted ?).
      *
      * Once called this fields is cleared to <tt>null</tt>.
-     * {@type Promise|null}
+     * @type {Function|null}
      */
     _untoggleScreenSharing: null,
 
